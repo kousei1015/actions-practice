@@ -1,0 +1,32 @@
+name: Build and Deploy to S3
+
+on:
+  push:
+    branches:
+      - main  # mainブランチに対するプッシュイベントでトリガーされる
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3  # リポジトリをチェックアウト
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'  # 使用するNode.jsのバージョンを指定
+
+      - name: Install Dependencies
+        run: npm install  # 依存関係のインストール
+
+      - name: Build
+        run: npm run build  # Reactアプリケーションのビルド
+
+      - name: Deploy to S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws s3 cp --recursive --region ap-northeast-1 dist s3://my-lesson
